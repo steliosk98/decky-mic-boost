@@ -24,23 +24,20 @@ Turn your Steam Deck mic up to 11 (and then some). This Decky Loader plugin lets
 ## Install on Steam Deck (Decky)
 Pick your favorite route:
 
-### Option A: Install from GitHub Release (recommended)
+### Option A: Install from GitHub Release via Decky (recommended)
 1. Download the latest `decky-mic-boost-<version>.zip` from GitHub Releases.
-2. On your Deck, open Desktop Mode.
-3. Extract the ZIP into your Decky plugins folder:
-   - Default path: `~/homebrew/plugins/`
-4. Make sure the folder looks like:
-   - `~/homebrew/plugins/decky-mic-boost/plugin.json`
-   - `~/homebrew/plugins/decky-mic-boost/backend/main.py`
-   - `~/homebrew/plugins/decky-mic-boost/dist/index.js`
-5. Return to Gaming Mode and open Decky. The plugin shows up under the list.
+2. On your Deck, open Gaming Mode and open Decky.
+3. Open Decky Settings and enable **Developer Mode**.
+4. Go to the **Developer** tab in Decky settings and choose **Install Plugin from ZIP file**.
+5. Select the downloaded ZIP and install.
+6. The plugin appears in your Decky list right away.
 
 ### Option B: Install from source (devs and tinkerers)
 ```sh
 npm install
 npm run build
 ```
-Copy the folder into `~/homebrew/plugins/` (same structure as above).
+Use Decky’s **Install from ZIP** or copy the built `decky-mic-boost` folder into `~/homebrew/plugins/`.
 
 ## How it works
 The backend calls WirePlumber via `wpctl` on `@DEFAULT_AUDIO_SOURCE@` with a higher limit, mapping:
