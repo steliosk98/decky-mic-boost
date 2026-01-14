@@ -27,7 +27,7 @@ npm run dev
 ```
 
 ## Release
-Builds the frontend and creates a Decky-ready ZIP at `release/decky-mic-boost.zip`:
+Builds the frontend and creates a Decky-ready ZIP at `release/decky-mic-boost-<version>.zip`:
 ```sh
 npm run release
 ```

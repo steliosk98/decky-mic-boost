@@ -4,7 +4,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT_DIR="${ROOT_DIR}/release"
 PLUGIN_NAME="decky-mic-boost"
-ZIP_PATH="${OUT_DIR}/${PLUGIN_NAME}.zip"
+VERSION="$(node -p "require('./package.json').version")"
+ZIP_PATH="${OUT_DIR}/${PLUGIN_NAME}-${VERSION}.zip"
 
 mkdir -p "${OUT_DIR}"
 
