@@ -3,6 +3,7 @@
   "author": "decky-mic-boost",
   "flags": [],
   "api_version": 1,
+  "backend": "backend/main.py",
   "main": "dist/index.js",
-  "version": "0.1.0"
+  "version": "0.1.2"
 }
