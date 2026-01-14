@@ -6,7 +6,7 @@ import {
   SliderField,
   toaster,
 } from "decky-frontend-lib";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const DEFAULT_PERCENT = 100;
 const MIN_PERCENT = 100;
@@ -15,6 +15,25 @@ const STEP = 10;
 
 export default definePlugin((serverAPI) => {
   const [percent, setPercent] = useState(DEFAULT_PERCENT);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    const loadState = async () => {
+      const result = await serverAPI.callPluginMethod("get_state", {});
+      if (!result.success) {
+        return;
+      }
+      const nextPercent = result.result?.percent;
+      if (typeof nextPercent === "number" && isMounted.current) {
+        setPercent(nextPercent);
+      }
+    };
+    void loadState();
+    return () => {
+      isMounted.current = false;
+    };
+  }, [serverAPI]);
 
   const applyBoost = async (nextPercent: number) => {
     setPercent(nextPercent);
@@ -54,6 +73,14 @@ export default definePlugin((serverAPI) => {
           valueSuffix="%"
           onChange={applyBoost}
         />
+      </PanelSectionRow>
+      <PanelSectionRow>
+        <div>Current: {percent}%</div>
+      </PanelSectionRow>
+      <PanelSectionRow>
+        <div>
+          Boosting microphone input above 100% may cause clipping or noise.
+        </div>
       </PanelSectionRow>
       <PanelSectionRow>
         <ButtonItem onClick={resetBoost}>Reset to Default</ButtonItem>

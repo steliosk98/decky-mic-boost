@@ -1,20 +1,29 @@
 import json
 import os
 import subprocess
-from typing import Dict, Any
+from typing import Any, Dict
 
 DEFAULT_PERCENT = 100
 MIN_PERCENT = 100
 MAX_PERCENT = 500
 
+try:
+    from decky_plugin import DECKY_PLUGIN_SETTINGS_DIR, logger
+except ImportError:
+    import logging
+
+    logger = logging.getLogger(__name__)
+    DECKY_PLUGIN_SETTINGS_DIR = os.getcwd()
+
 
 class Plugin:
     def __init__(self):
-        self.settings_path = os.path.join(os.getcwd(), "settings.json")
+        self.settings_path = os.path.join(DECKY_PLUGIN_SETTINGS_DIR, "settings.json")
 
     async def set_mic_boost(self, percent: int) -> Dict[str, Any]:
-        if not isinstance(percent, int):
-            return {"error": "percent must be an integer"}
+        if not isinstance(percent, (int, float)):
+            return {"error": "percent must be a number"}
+        percent = int(percent)
         if percent < MIN_PERCENT or percent > MAX_PERCENT:
             return {"error": f"percent must be between {MIN_PERCENT} and {MAX_PERCENT}"}
 
@@ -36,7 +45,10 @@ class Plugin:
 
     async def get_state(self) -> Dict[str, Any]:
         data = self._read_settings()
-        return {"percent": data.get("percent", DEFAULT_PERCENT)}
+        percent = data.get("percent", DEFAULT_PERCENT)
+        if not isinstance(percent, int) or percent < MIN_PERCENT or percent > MAX_PERCENT:
+            percent = DEFAULT_PERCENT
+        return {"percent": percent}
 
     def _run_wpctl(self, value: float) -> Dict[str, Any] | None:
         try:
@@ -47,11 +59,14 @@ class Plugin:
                 text=True,
             )
         except FileNotFoundError:
+            logger.error("wpctl not found on system")
             return {"error": "wpctl not found on system"}
         except subprocess.CalledProcessError as exc:
+            logger.error("wpctl failed: %s", exc.stderr.strip())
             return {"error": exc.stderr.strip() or "wpctl failed"}
 
         if completed.stderr:
+            logger.error("wpctl stderr: %s", completed.stderr.strip())
             return {"error": completed.stderr.strip()}
 
         return None
@@ -72,4 +87,3 @@ class Plugin:
                 json.dump(data, handle)
         except OSError:
             pass
-
