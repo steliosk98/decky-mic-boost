@@ -26,6 +26,12 @@ Run the frontend dev server:
 npm run dev
 ```
 
+## Release
+Builds the frontend and creates a Decky-ready ZIP at `release/decky-mic-boost.zip`:
+```sh
+npm run release
+```
+
 ## Notes
 - The backend uses `wpctl` on `@DEFAULT_AUDIO_SOURCE@` and allows values above 1.0 via `-l`.
 - Decky provides the Python runtime and `decky_plugin` module in production.
