@@ -1,0 +1,14 @@
+{
+  "name": "decky-mic-boost",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo 'TODO: add build pipeline (e.g. decky-frontend-lib + bundler)'",
+    "dev": "echo 'TODO: add dev pipeline'"
+  },
+  "dependencies": {
+    "decky-frontend-lib": "^3.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

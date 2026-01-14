@@ -1,0 +1,8 @@
+{
+  "name": "Mic Boost",
+  "author": "decky-mic-boost",
+  "flags": [],
+  "api_version": 1,
+  "main": "dist/index.js",
+  "version": "0.1.0"
+}
