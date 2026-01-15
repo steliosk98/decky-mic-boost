@@ -5,7 +5,7 @@
   "api_version": 0,
   "backend": "backend/main.py",
   "main": "dist/index.js",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "id": "decky-mic-boost",
   "description": "Boost microphone input level up to 500% with a slider and reset button."
 }
