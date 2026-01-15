@@ -1,10 +1,10 @@
 {
-    "name": "Decky Mic Boost",
-    "author": "steliosk98",
-    "flags": ["_root"],
-    "publish": {
-      "tags": ["audio", "microphone"],
-      "description": "Decky Mic Boost plugin",
-      "image": ""
-    }
+  "name": "Decky Mic Boost",
+  "author": "steliosk98",
+  "flags": ["root"],
+  "publish": {
+    "tags": ["audio", "microphone"],
+    "description": "Decky Mic Boost plugin",
+    "image": ""
   }
+}
