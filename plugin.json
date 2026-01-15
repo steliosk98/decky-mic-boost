@@ -1,5 +1,6 @@
 {
   "name": "Decky Mic Boost",
+  "version": "0.2.1.3A",
   "author": "steliosk98",
   "flags": ["root"],
   "publish": {
