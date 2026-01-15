@@ -1,136 +1,117 @@
-import React, { useEffect, useState } from "react";
 import {
-  definePlugin,
-  ServerAPI,
-  PanelSection,
-  PanelSectionRow,
-  SliderField,
-  ButtonItem,
-  staticClasses,
-} from "decky-frontend-lib";
-
-type MicState = { percent: number };
-type MicActionResult = { percent?: number; message?: string };
-
-function Content({ serverAPI }: { serverAPI: ServerAPI }) {
-  const [percent, setPercent] = useState<number>(100);
-  const [busy, setBusy] = useState(false);
-
-  async function refresh() {
-    const res = await serverAPI.callPluginMethod<{}, MicState>("get_state", {});
-    if (!res.success || !res.result) {
-      serverAPI.toaster.toast({
-        title: "Mic Boost",
-        body: "Failed to load current mic boost.",
-      });
-      return;
-    }
-
-    if (typeof res.result.percent === "number") {
-      setPercent(res.result.percent);
-    }
-  }
-
-  useEffect(() => {
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function apply(p: number) {
-    setBusy(true);
-    try {
-      const res = await serverAPI.callPluginMethod<{ percent: number }, MicActionResult>(
-        "set_mic_boost",
-        { percent: p }
-      );
-
-      if (!res.success || !res.result) {
-        serverAPI.toaster.toast({
-          title: "Mic Boost",
-          body: "Failed to apply mic boost.",
+    ButtonItem,
+    definePlugin,
+    PanelSection,
+    PanelSectionRow,
+    ServerAPI,
+    SliderField,
+    staticClasses,
+  } from "decky-frontend-lib";
+  import { VFC, useState, useEffect } from "react";
+  import { FaMicrophone } from "react-icons/fa";
+  
+  const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
+    const [micVolume, setMicVolume] = useState<number>(100);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+    // Load current volume on mount
+    useEffect(() => {
+      loadCurrentVolume();
+    }, []);
+  
+    const loadCurrentVolume = async () => {
+      try {
+        const result = await serverAPI.callPluginMethod<{}, number>(
+          "get_mic_volume",
+          {}
+        );
+        if (result.success) {
+          setMicVolume(result.result);
+        }
+      } catch (error) {
+        console.error("Error loading mic volume:", error);
+      }
+    };
+  
+    const handleVolumeChange = async (value: number) => {
+      setMicVolume(value);
+      setIsLoading(true);
+      
+      try {
+        await serverAPI.callPluginMethod("set_mic_volume", {
+          volume: value,
         });
-        return;
+      } catch (error) {
+        console.error("Error setting mic volume:", error);
+      } finally {
+        setIsLoading(false);
       }
-
-      if (res.result.message) {
-        serverAPI.toaster.toast({
-          title: "Mic Boost",
-          body: res.result.message,
-        });
-        return;
+    };
+  
+    const handleReset = async () => {
+      setIsLoading(true);
+      try {
+        const result = await serverAPI.callPluginMethod<{}, { success: boolean; volume: number }>(
+          "reset_mic_volume",
+          {}
+        );
+        if (result.success) {
+          setMicVolume(result.result.volume);
+        }
+      } catch (error) {
+        console.error("Error resetting mic volume:", error);
+      } finally {
+        setIsLoading(false);
       }
-
-      if (typeof res.result.percent === "number") {
-        setPercent(res.result.percent);
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function reset() {
-    setBusy(true);
-    try {
-      const res = await serverAPI.callPluginMethod<{}, MicActionResult>("reset_mic_boost", {});
-
-      if (!res.success || !res.result) {
-        serverAPI.toaster.toast({
-          title: "Mic Boost",
-          body: "Failed to reset mic boost.",
-        });
-        return;
-      }
-
-      if (res.result.message) {
-        serverAPI.toaster.toast({
-          title: "Mic Boost",
-          body: res.result.message,
-        });
-        return;
-      }
-
-      if (typeof res.result.percent === "number") {
-        setPercent(res.result.percent);
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <PanelSection title="Mic Boost">
-      <PanelSectionRow>
-        <div className={staticClasses.Text} style={{ opacity: 0.8 }}>
-          Boosting above 100% is digital gain and may cause clipping/noise.
-        </div>
-      </PanelSectionRow>
-
-      <PanelSectionRow>
-        <SliderField
-          label={`Mic Boost: ${percent}%`}
-          value={percent}
-          min={100}
-          max={500}
-          step={10}
-          disabled={busy}
-          onChange={(v: number) => setPercent(v)}
-          onChangeEnd={(v: number) => apply(v)}
-        />
-      </PanelSectionRow>
-
-      <PanelSectionRow>
-        <ButtonItem layout="below" disabled={busy} onClick={reset}>
-          Reset to 100%
-        </ButtonItem>
-      </PanelSectionRow>
-    </PanelSection>
-  );
-}
-
-export default definePlugin((serverAPI: ServerAPI) => {
-  return {
-    title: <div className={staticClasses.Title}>Mic Boost</div>,
-    content: <Content serverAPI={serverAPI} />,
-    icon: <div className={staticClasses.Icon}>🎙️</div>,
+    };
+  
+    return (
+      <PanelSection title="Microphone Boost">
+        <PanelSectionRow>
+          <SliderField
+            label="Mic Volume"
+            value={micVolume}
+            min={100}
+            max={500}
+            step={10}
+            onChange={handleVolumeChange}
+            disabled={isLoading}
+            notchCount={41}
+            notchLabels={[
+              { notchIndex: 0, label: "100%", value: 100 },
+              { notchIndex: 10, label: "200%", value: 200 },
+              { notchIndex: 20, label: "300%", value: 300 },
+              { notchIndex: 30, label: "400%", value: 400 },
+              { notchIndex: 40, label: "500%", value: 500 },
+            ]}
+            bottomSeparator="none"
+          />
+        </PanelSectionRow>
+        <PanelSectionRow>
+          <div style={{ fontSize: "14px", color: "#dcdedf", marginBottom: "10px" }}>
+            Current: {micVolume}%
+          </div>
+        </PanelSectionRow>
+        <PanelSectionRow>
+          <ButtonItem
+            layout="below"
+            onClick={handleReset}
+            disabled={isLoading}
+          >
+            Reset to Default (100%)
+          </ButtonItem>
+        </PanelSectionRow>
+      </PanelSection>
+    );
   };
-});
+  
+  export default definePlugin((serverApi: ServerAPI) => {
+    return {
+      title: <div className={staticClasses.Title}>Mic Boost</div>,
+      content: <Content serverAPI={serverApi} />,
+      icon: <FaMicrophone />,
+      onDismount() {
+        // Cleanup if needed
+      },
+    };
+  });
