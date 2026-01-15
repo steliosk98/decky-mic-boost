@@ -4,7 +4,7 @@
     "flags": ["_root"],
     "publish": {
       "tags": ["audio", "microphone"],
-      "description": "Boost microphone input volume up to 500%",
+      "description": "Decky Mic Boost plugin",
       "image": ""
     }
   }
