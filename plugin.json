@@ -1,0 +1,10 @@
+{
+    "name": "Decky -Mic Boost",
+    "author": "steliosk98",
+    "flags": ["_root"],
+    "publish": {
+      "tags": ["audio", "microphone"],
+      "description": "Boost microphone input volume up to 500%",
+      "image": ""
+    }
+  }
