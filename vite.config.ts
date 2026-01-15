@@ -6,7 +6,10 @@ export default defineConfig({
   build: {
     lib: {
       entry: "src/index.tsx",
-      formats: ["es"],
+      // Decky Loader currently loads the bundled file in a CommonJS context,
+      // so we emit a CJS bundle instead of a bare ES module to avoid
+      // "Cannot use import statement outside a module" at runtime.
+      formats: ["cjs"],
       fileName: () => "index.js",
     },
     outDir: "dist",
