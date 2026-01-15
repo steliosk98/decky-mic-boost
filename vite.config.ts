@@ -12,7 +12,7 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
     rollupOptions: {
-      external: ["@decky/api", "@decky/ui", "react", "react-dom"],
+      external: ["@decky/api", "@decky/ui"]
     },
   },
 });
