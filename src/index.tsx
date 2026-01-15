@@ -1,16 +1,16 @@
+import React, { useState, useEffect, VFC } from "react";
 import {
-    ButtonItem,
-    definePlugin,
-    PanelSection,
-    PanelSectionRow,
-    ServerAPI,
-    SliderField,
-    staticClasses,
-  } from "decky-frontend-lib";
-  import { VFC, useState, useEffect } from "react";
-  import { FaMicrophone } from "react-icons/fa";
+  ButtonItem,
+  definePlugin,
+  PanelSection,
+  PanelSectionRow,
+  ServerAPI,
+  SliderField,
+  staticClasses,
+} from "decky-frontend-lib";
+import { FaMicrophone } from "react-icons/fa";
   
-  const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
+  const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }: { serverAPI: ServerAPI }) => {
     const [micVolume, setMicVolume] = useState<number>(100);
     const [isLoading, setIsLoading] = useState<boolean>(false);
   

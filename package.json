@@ -7,39 +7,40 @@
         "watch": "rollup -c -w",
         "package": "npm run build && shx rm -rf out && shx mkdir -p out && shx cp -r dist defaults main.py plugin.json package.json out/ && cd out && bestzip ../decky-mic-boost.zip * && cd .. && shx rm -rf out",
         "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    },
     "keywords": [
-      "decky",
-      "plugin",
-      "microphone",
-      "audio"
+        "decky",
+        "plugin",
+        "microphone",
+        "audio"
     ],
     "author": "steliosk98",
     "license": "BSD-3-Clause",
     "devDependencies": {
-      "@rollup/plugin-commonjs": "^21.1.0",
-      "@rollup/plugin-json": "^4.1.0",
-      "@rollup/plugin-node-resolve": "^13.3.0",
-      "@rollup/plugin-replace": "^4.0.0",
-      "@rollup/plugin-typescript": "^8.3.3",
-      "@types/react": "16.14.0",
-      "@types/webpack": "^5.28.0",
-      "decky-frontend-lib": "^3.21.0",
-      "rollup": "^2.79.1",
-      "rollup-plugin-import-assets": "^1.1.1",
-      "shx": "^0.3.4",
-      "tslib": "^2.4.0",
-      "typescript": "^4.7.4"
+        "@rollup/plugin-commonjs": "^21.1.0",
+        "@rollup/plugin-json": "^4.1.0",
+        "@rollup/plugin-node-resolve": "^13.3.0",
+        "@rollup/plugin-replace": "^4.0.0",
+        "@rollup/plugin-typescript": "^8.3.3",
+        "@types/react": "16.14.0",
+        "@types/webpack": "^5.28.0",
+        "bestzip": "^2.2.1",
+        "decky-frontend-lib": "^3.21.0",
+        "rollup": "^2.79.1",
+        "rollup-plugin-import-assets": "^1.1.1",
+        "shx": "^0.3.4",
+        "tslib": "^2.4.0",
+        "typescript": "^4.7.4"
     },
     "dependencies": {
-      "react-icons": "^4.4.0"
+        "react-icons": "^4.4.0"
     },
     "pnpm": {
-      "peerDependencyRules": {
-        "ignoreMissing": [
-          "react",
-          "react-dom"
-        ]
-      }
+        "peerDependencyRules": {
+            "ignoreMissing": [
+                "react",
+                "react-dom"
+            ]
+        }
     }
-  }
+}
