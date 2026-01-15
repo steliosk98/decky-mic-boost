@@ -16,7 +16,7 @@ npm run build
 rm -f "${ZIP_PATH}"
 
 mkdir -p "${STAGE_DIR}/${PLUGIN_NAME}"
-cp -R plugin.json dist backend README.md "${STAGE_DIR}/${PLUGIN_NAME}"
+cp -R plugin.json package.json dist backend README.md "${STAGE_DIR}/${PLUGIN_NAME}"
 
 # Package with a top-level folder so Decky can detect it.
 (
