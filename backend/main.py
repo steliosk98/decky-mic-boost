@@ -1,7 +1,7 @@
 import json
 import os
 import subprocess
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 DEFAULT_PERCENT = 100
 MIN_PERCENT = 100
@@ -22,23 +22,26 @@ class Plugin:
 
     async def set_mic_boost(self, percent: int) -> Dict[str, Any]:
         if not isinstance(percent, (int, float)):
-            return {"error": "percent must be a number"}
+            return {"message": "percent must be a number"}
         percent = int(percent)
         if percent < MIN_PERCENT or percent > MAX_PERCENT:
-            return {"error": f"percent must be between {MIN_PERCENT} and {MAX_PERCENT}"}
+            return {
+                "message": f"percent must be between {MIN_PERCENT} and {MAX_PERCENT}"
+            }
 
         value = percent / 100.0
-        result = self._run_wpctl(value)
-        if result is not None:
-            return result
+        error = self._run_wpctl(value)
+        if error is not None:
+            # Surface backend error message directly to the frontend.
+            return error
 
         self._write_settings({"percent": percent})
         return {"percent": percent}
 
     async def reset_mic_boost(self) -> Dict[str, Any]:
-        result = self._run_wpctl(1.0)
-        if result is not None:
-            return result
+        error = self._run_wpctl(1.0)
+        if error is not None:
+            return error
 
         self._write_settings({"percent": DEFAULT_PERCENT})
         return {"percent": DEFAULT_PERCENT}
@@ -50,7 +53,7 @@ class Plugin:
             percent = DEFAULT_PERCENT
         return {"percent": percent}
 
-    def _run_wpctl(self, value: float) -> Dict[str, Any] | None:
+    def _run_wpctl(self, value: float) -> Optional[Dict[str, Any]]:
         try:
             completed = subprocess.run(
                 ["wpctl", "set-volume", "-l", str(value), "@DEFAULT_AUDIO_SOURCE@", str(value)],
@@ -60,14 +63,16 @@ class Plugin:
             )
         except FileNotFoundError:
             logger.error("wpctl not found on system")
-            return {"error": "wpctl not found on system"}
+            return {"message": "wpctl not found on system"}
         except subprocess.CalledProcessError as exc:
-            logger.error("wpctl failed: %s", exc.stderr.strip())
-            return {"error": exc.stderr.strip() or "wpctl failed"}
+            stderr = (exc.stderr or "").strip()
+            logger.error("wpctl failed: %s", stderr)
+            return {"message": stderr or "wpctl failed"}
 
         if completed.stderr:
-            logger.error("wpctl stderr: %s", completed.stderr.strip())
-            return {"error": completed.stderr.strip()}
+            stderr = completed.stderr.strip()
+            logger.error("wpctl stderr: %s", stderr)
+            return {"message": stderr}
 
         return None
 
