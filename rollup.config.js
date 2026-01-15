@@ -17,7 +17,7 @@ export default {
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
     importAssets({
-      publicPath: `http://127.0.0.1:1337/plugins/mic-boost/`
+      publicPath: `http://127.0.0.1:1337/plugins/decky-mic-boost/`
     })
   ],
   context: 'window',

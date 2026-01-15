@@ -1,4 +1,4 @@
-import React, { useState, useEffect, VFC } from "react";
+import { VFC, useState, useEffect } from "react";
 import {
   ButtonItem,
   definePlugin,
