@@ -12,7 +12,7 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
     rollupOptions: {
-      external: ["@decky/api", "@decky/ui"]
+      external: ["decky-frontend-lib"],
     },
   },
 });

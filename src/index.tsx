@@ -1,135 +1,102 @@
-import { definePlugin, call, toaster } from "@decky/api";
+import React, { useEffect, useState } from "react";
 import {
+  definePlugin,
+  ServerAPI,
   PanelSection,
   PanelSectionRow,
-  ButtonItem,
   SliderField,
-} from "@decky/ui";
-import { useEffect, useRef, useState } from "react";
+  ButtonItem,
+  staticClasses,
+} from "decky-frontend-lib";
 
-const DEFAULT_PERCENT = 100;
-const MIN_PERCENT = 100;
-const MAX_PERCENT = 500;
-const STEP = 10;
+type SetResp = { success: boolean; applied?: number; message?: string };
+type StateResp = { percent: number };
 
-type StateResponse = { percent: number };
-type ErrorResponse = { error: string };
-
-function clampPercent(p: number): number {
-  if (!Number.isFinite(p)) return DEFAULT_PERCENT;
-  return Math.min(MAX_PERCENT, Math.max(MIN_PERCENT, Math.round(p)));
-}
-
-function MicBoostPanel() {
-  const [percent, setPercent] = useState<number>(DEFAULT_PERCENT);
+function Content({ serverAPI }: { serverAPI: ServerAPI }) {
+  const [percent, setPercent] = useState<number>(100);
   const [busy, setBusy] = useState(false);
-  const isMounted = useRef(true);
+
+  async function refresh() {
+    const res = await serverAPI.callPluginMethod<{}, StateResp>("get_state", {});
+    if (res.success && res.result && typeof res.result.percent === "number") {
+      setPercent(res.result.percent);
+    }
+  }
 
   useEffect(() => {
-    isMounted.current = true;
-
-    (async () => {
-      try {
-        const res = await call<[], StateResponse>("get_state");
-        if (isMounted.current && typeof res?.percent === "number") {
-          setPercent(clampPercent(res.percent));
-        }
-      } catch (e: any) {
-        // Non-fatal: just stick to default
-        toaster.toast({
-          title: "Mic Boost",
-          body: `Failed to load state: ${String(e?.message ?? e)}`,
-          critical: false,
-        });
-      }
-    })();
-
-    return () => {
-      isMounted.current = false;
-    };
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const applyBoost = async (nextPercent: number) => {
-    const p = clampPercent(nextPercent);
-    setPercent(p);
-
+  async function apply(p: number) {
     setBusy(true);
     try {
-      const res = await call<[percent: number], StateResponse | ErrorResponse>(
+      const res = await serverAPI.callPluginMethod<{ percent: number }, SetResp>(
         "set_mic_boost",
-        p
+        { percent: p }
       );
-
-      if ("error" in res) {
-        toaster.toast({ title: "Mic Boost", body: res.error, critical: true });
+      if (!res.success) {
+        serverAPI.toaster.toast({
+          title: "Mic Boost",
+          body: res.result?.message ?? "Failed to apply mic boost.",
+        });
       }
-    } catch (e: any) {
-      toaster.toast({
-        title: "Mic Boost",
-        body: `Failed to apply: ${String(e?.message ?? e)}`,
-        critical: true,
-      });
     } finally {
-      if (isMounted.current) setBusy(false);
+      setBusy(false);
     }
-  };
+  }
 
-  const resetBoost = async () => {
+  async function reset() {
     setBusy(true);
     try {
-      const res = await call<[], StateResponse | ErrorResponse>("reset_mic_boost");
-      if ("error" in res) {
-        toaster.toast({ title: "Mic Boost", body: res.error, critical: true });
+      const res = await serverAPI.callPluginMethod<{}, { success: boolean }>("reset_mic_boost", {});
+      if (!res.success) {
+        serverAPI.toaster.toast({
+          title: "Mic Boost",
+          body: "Failed to reset mic boost.",
+        });
         return;
       }
-      if (isMounted.current) setPercent(DEFAULT_PERCENT);
-    } catch (e: any) {
-      toaster.toast({
-        title: "Mic Boost",
-        body: `Failed to reset: ${String(e?.message ?? e)}`,
-        critical: true,
-      });
+      setPercent(100);
     } finally {
-      if (isMounted.current) setBusy(false);
+      setBusy(false);
     }
-  };
+  }
 
   return (
     <PanelSection title="Mic Boost">
       <PanelSectionRow>
+        <div className={staticClasses.Text} style={{ opacity: 0.8 }}>
+          Boosting above 100% is digital gain and may cause clipping/noise.
+        </div>
+      </PanelSectionRow>
+
+      <PanelSectionRow>
         <SliderField
-          label="Mic Boost"
+          label={`Mic Boost: ${percent}%`}
           value={percent}
-          min={MIN_PERCENT}
-          max={MAX_PERCENT}
-          step={STEP}
+          min={100}
+          max={500}
+          step={10}
           disabled={busy}
-          showValue={true}
-          valueSuffix="%"
-          onChange={(val: number) => setPercent(clampPercent(val))}
-          onChangeComplete={(val: number) => void applyBoost(val)}
+          onChange={(v: number) => setPercent(v)}
+          onChangeEnd={(v: number) => apply(v)}
         />
       </PanelSectionRow>
 
       <PanelSectionRow>
-        <div>Current: {percent}%</div>
-      </PanelSectionRow>
-
-      <PanelSectionRow>
-        <div>Boosting microphone input above 100% may cause clipping or noise.</div>
-      </PanelSectionRow>
-
-      <PanelSectionRow>
-        <ButtonItem disabled={busy} onClick={() => void resetBoost()}>
-          Reset to Default
+        <ButtonItem layout="below" disabled={busy} onClick={reset}>
+          Reset to 100%
         </ButtonItem>
       </PanelSectionRow>
     </PanelSection>
   );
 }
 
-export default definePlugin(() => ({
-  title: "Mic Boost",
-  content: <MicBoostPanel />,
-  icon: <span style={{ fontSize: 18 }}>🎤</span>,
-}));
+export default definePlugin((serverAPI: ServerAPI) => {
+  return {
+    title: <div className={staticClasses.Title}>Mic Boost</div>,
+    content: <Content serverAPI={serverAPI} />,
+    icon: <div className={staticClasses.Icon}>🎙️</div>,
+  };
+});
